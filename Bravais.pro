@@ -11,8 +11,16 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Bravais
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+gcc {
+  QMAKE_CXXFLAGS += -fopenmp
+  QMAKE_LFLAGS += -fopenmp
+  QMAKE_CXXFLAGS_RELEASE *= -O3
+}
+
+msvc {
+  QMAKE_CXXFLAGS += -openmp
+  QMAKE_CXXFLAGS_RELEASE *= -O2
+}
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -32,13 +40,16 @@ SOURCES += src/main.cpp\
     src/inputtab.cpp \
     src/elementselector.cpp \
     src/crystal_database.cpp \
-    src/surface_creator.cpp \
-    src/unitcellbuilder.cpp
+    src/surface_creator.cpp
 
 HEADERS  += src/mainwindow.h \
     src/poscartab.h \
     src/inputtab.h \
     src/elementselector.h \
     src/crystal_database.h \
-    src/surface_creator.h \
-    src/unitcellbuilder.h
+    src/surface_creator.h
+
+win32 {
+    INCLUDEPATH += ../../Libraries/boost-1.64.0-win-x64/include
+    INCLUDEPATH += ../../Libraries/glm-0.9.8.4-win-x64
+}

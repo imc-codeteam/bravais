@@ -1,5 +1,6 @@
 /**************************************************************************
- *   CMakeLists.txt  --  This file is part of lanius.                     *
+ *   This file is part of lanius                                          *
+ *   https://github.com/imc-codeteam/lanius                               *
  *                                                                        *
  *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  *                                                                        *
@@ -109,7 +110,7 @@ void SurfaceCreator::create_surface(double vacuum) {
 
     // ensure that all atoms lie within the unit cell
     #pragma omp parallel for
-    for(unsigned int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
+    for(int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
         this->unitcell_surface_coordinates[i] = glm::fract(this->unitcell_surface_coordinates[i]);
         for(unsigned int j=0; j<3; j++) {
             if(std::fabs(this->unitcell_surface_coordinates[i][j] - 1.0) < 1e-5) {
@@ -134,7 +135,7 @@ void SurfaceCreator::create_surface(double vacuum) {
     // reposition atoms in larger unit cell (scale z-position)
     tmat = glm::inverse(this->unitcell_surface) * surf_novac;
     #pragma omp parallel for
-    for(unsigned int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
+    for(int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
         this->unitcell_surface_coordinates[i] = glm::fract(tmat * this->unitcell_surface_coordinates[i]);
         for(unsigned int j=0; j<3; j++) {
             if(std::fabs(this->unitcell_surface_coordinates[i][j] - 1.0) < 1e-5) {
@@ -252,7 +253,7 @@ void SurfaceCreator::expand_unitcell(int a, int b, int c) {
     // perform basis transformation
     const glm::dmat3 tmat = glm::inverse(newmat) * this->unitcell_cleaved;
     #pragma omp parallel for
-    for(unsigned int i=0; i<this->unitcell_cleaved_coordinates.size(); i++) {
+    for(int i=0; i<this->unitcell_cleaved_coordinates.size(); i++) {
         this->unitcell_cleaved_coordinates[i] = tmat * this->unitcell_cleaved_coordinates[i];
     }
 
@@ -267,7 +268,7 @@ void SurfaceCreator::expand_unitcell(int a, int b, int c) {
  */
 void SurfaceCreator::clean_atoms_unitcell(std::vector<glm::dvec3>& atoms) {
     #pragma omp parallel for
-    for(unsigned int i=0; i<atoms.size(); i++) {
+    for(int i=0; i<atoms.size(); i++) {
         atoms[i] = glm::fract(atoms[i]);
         for(unsigned int j=0; j<3; j++) {
             atoms[i][j] -= std::floor(atoms[i][j] + 1e-10);
@@ -381,14 +382,14 @@ void SurfaceCreator::center_atoms() {
     // calculate center height
     double ctr = 0.0;
     #pragma omp parallel for reduction(+:ctr)
-    for(unsigned int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
+    for(int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
         ctr += this->unitcell_surface_coordinates[i][2];
     }
 
     // correct all atoms with this height
     ctr /= (double)this->unitcell_surface_coordinates.size();
     #pragma omp parallel for
-    for(unsigned int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
+    for(int i=0; i<this->unitcell_surface_coordinates.size(); i++) {
         this->unitcell_surface_coordinates[i][2] -= ctr - 0.5;
     }
 }

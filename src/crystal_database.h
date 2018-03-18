@@ -1,5 +1,6 @@
 /**************************************************************************
- *   CMakeLists.txt  --  This file is part of lanius.                     *
+ *   This file is part of lanius                                          *
+ *   https://github.com/imc-codeteam/lanius                               *
  *                                                                        *
  *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  *                                                                        *

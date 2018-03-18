@@ -1,5 +1,31 @@
+/**************************************************************************
+ *   This file is part of Bravais                                         *
+ *   https://github.com/imc-codeteam/bravais                              *
+ *                                                                        *
+ *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
+ *                                                                        *
+ *   lanius is free software: you can redistribute it and/or modify       *
+ *   it under the terms of the GNU General Public License as published    *
+ *   by the Free Software Foundation, either version 3 of the License,    *
+ *   or (at your option) any later version.                               *
+ *                                                                        *
+ *   lanius is distributed in the hope that it will be useful,            *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
+ *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
+ *   See the GNU General Public License for more details.                 *
+ *                                                                        *
+ *   You should have received a copy of the GNU General Public License    *
+ *   along with this program.  If not, see http://www.gnu.org/licenses/.  *
+ *                                                                        *
+ **************************************************************************/
+
 #include "elementselector.h"
 
+/**
+ * @brief      constructor
+ *
+ * @param      parent  parent widget
+ */
 ElementSelector::ElementSelector(QWidget *parent) : QWidget(parent)
 {
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -59,8 +85,16 @@ ElementSelector::ElementSelector(QWidget *parent) : QWidget(parent)
     for(unsigned int i=20; i<29; i++) {
         grid_layout->addWidget(this->radio_buttons[i], 2, i-19);
     }
+
+    // check Cobalt as default
+    this->radio_buttons[6]->setChecked(true);
 }
 
+/**
+ * @brief      get the selected element
+ *
+ * @return     the selected element
+ */
 QString ElementSelector::get_selected_element() const {
     for(unsigned int i=0; i<this->radio_buttons.size(); i++) {
         if(this->radio_buttons[i]->isChecked()) {
@@ -68,5 +102,5 @@ QString ElementSelector::get_selected_element() const {
         }
     }
 
-    return "X";
+    throw std::runtime_error("No element was selected.");
 }
