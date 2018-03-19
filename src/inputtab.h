@@ -1,15 +1,15 @@
 /**************************************************************************
  *   This file is part of Bravais                                         *
- *   https://github.com/imc-codeteam/bravais                              *
+ *   https://github.com/imc-codeteam/lanius                               *
  *                                                                        *
  *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  *                                                                        *
- *   lanius is free software: you can redistribute it and/or modify       *
+ *   Bravais is free software: you can redistribute it and/or modify      *
  *   it under the terms of the GNU General Public License as published    *
  *   by the Free Software Foundation, either version 3 of the License,    *
  *   or (at your option) any later version.                               *
  *                                                                        *
- *   lanius is distributed in the hope that it will be useful,            *
+ *   Bravais is distributed in the hope that it will be useful,           *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -32,6 +32,7 @@
 #include <QDoubleSpinBox>
 
 #include "elementselector.h"
+#include "crystal_database.h"
 
 /**
  * @brief The InputTab class
@@ -41,14 +42,18 @@ class InputTab : public QWidget
     Q_OBJECT
 
 private:
-    QComboBox* lattice_list;                        // list of lattices
-    ElementSelector* element_selector;              // widget to select element
+    QComboBox* lattice_list;                            // list of lattices
+    ElementSelector* element_selector;                  // widget to select element
 
-    std::vector<QSpinBox*> miller_spinboxes;        // widget to set miller indices
-    std::vector<QSpinBox*> dimensions_spinboxes;    // widget to set unit cell dimensions
-    QDoubleSpinBox* vacuum_spinbox;                 // set vacuum thickness
+    std::vector<QSpinBox*> miller_spinboxes;            // widget to set miller indices
+    std::vector<QSpinBox*> dimensions_spinboxes;        // widget to set unit cell dimensions
+    std::vector<QDoubleSpinBox*> lattice_parameters;    // widget to set unit cell dimensions
+    QDoubleSpinBox* vacuum_spinbox;                     // set vacuum thickness
 
-    QPushButton* generate_button;                   // button to generate poscar file
+    QPushButton* generate_button;                       // button to generate poscar file
+    QPushButton* load_lattice_constants_button;         // button to load lattice constants from database
+
+    QLabel*      label_lattice_search_status;           // label showing database search info
 
 public:
 
@@ -79,6 +84,12 @@ public:
     QString get_lattice() const;
 
     /**
+     * @brief get the lattice constants
+     * @return the lattice constants
+     */
+    std::vector<double> get_lattice_constants() const;
+
+    /**
      * @brief get the miller indices for the crystal cleave
      * @return miller indices
      */
@@ -98,6 +109,12 @@ public:
 
 private:
     /**
+     * @brief build lattice parameter input widgets
+     * @param pointer to layout
+     */
+    void set_lattice_parameters(QVBoxLayout* layout);
+
+    /**
      * @brief build miller indices input widgets
      * @param pointer to layout
      */
@@ -114,6 +131,17 @@ private:
      * @param pointer to layout
      */
     void set_vacuum_input(QVBoxLayout* layout);
+
+private slots:
+    /**
+     * @brief change the lattice parameter input when you change the lattice
+     */
+    void action_on_change_lattice_select(const QString& lattice);
+
+    /**
+     * @brief load lattice constants from database
+     */
+    void action_load_lattice_constants();
 };
 
 #endif // INPUTTAB_H

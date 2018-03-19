@@ -1,15 +1,15 @@
 /**************************************************************************
  *   This file is part of Bravais                                         *
- *   https://github.com/imc-codeteam/bravais                              *
+ *   https://github.com/imc-codeteam/lanius                               *
  *                                                                        *
  *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  *                                                                        *
- *   lanius is free software: you can redistribute it and/or modify       *
+ *   Bravais is free software: you can redistribute it and/or modify      *
  *   it under the terms of the GNU General Public License as published    *
  *   by the Free Software Foundation, either version 3 of the License,    *
  *   or (at your option) any later version.                               *
  *                                                                        *
- *   lanius is distributed in the hope that it will be useful,            *
+ *   Bravais is distributed in the hope that it will be useful,           *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -62,13 +62,24 @@ InputTab::InputTab(QWidget *parent) : QWidget(parent)
     this->lattice_list->setCurrentIndex(1);
     layout->addWidget(this->lattice_list);
 
+    this->set_lattice_parameters(layout);
+
+    this->label_lattice_search_status = new QLabel();
+    this->label_lattice_search_status->hide();
+    layout->addWidget(this->label_lattice_search_status);
+
     this->set_miller_index_input(layout);
     this->set_dimensions_input(layout);
     this->set_vacuum_input(layout);
 
     this->generate_button = new QPushButton();
     this->generate_button->setText("Generate POSCAR");
+    this->generate_button->setToolTip("Generate POSCAR file using settings on this tab.");
     layout->addWidget(this->generate_button);
+
+    // connect actions
+    connect(this->lattice_list, SIGNAL(currentIndexChanged(const QString&)), this, SLOT (action_on_change_lattice_select(const QString&)));
+    connect(this->load_lattice_constants_button, SIGNAL (released()), this, SLOT (action_load_lattice_constants()));
 }
 
 /**
@@ -88,14 +99,28 @@ QString InputTab::get_lattice() const {
 }
 
 /**
+ * @brief get the lattice constants
+ * @return the lattice constants
+ */
+std::vector<double> InputTab::get_lattice_constants() const {
+    std::vector<double> lattice_const(3, 0.0);
+
+    for(unsigned int i=0; i<3; i++) {
+        lattice_const[i] = this->lattice_parameters[i]->value();
+    }
+
+    return lattice_const;
+}
+
+/**
  * @brief get the miller indices for the crystal cleave
  * @return miller indices
  */
 std::vector<int> InputTab::get_miller_indices() const {
-    std::vector<int> ans;
+    std::vector<int> ans(3, 0);
 
     for(unsigned int i=0; i<3; i++) {
-        ans.push_back(this->miller_spinboxes[i]->value());
+        ans[i] = this->miller_spinboxes[i]->value();
     }
 
     return ans;
@@ -121,6 +146,48 @@ std::vector<int> InputTab::get_cell_dimensions() const {
  */
 double InputTab::get_vacuum_thickness() const {
     return this->vacuum_spinbox->value();
+}
+
+/**
+ * @brief build lattice parameter input widgets
+ * @param pointer to layout
+ */
+void InputTab::set_lattice_parameters(QVBoxLayout* layout) {
+    QHBoxLayout* lattice_parameters_layout = new QHBoxLayout();
+    QWidget* lattice_param_widget = new QWidget();
+    lattice_param_widget->setLayout(lattice_parameters_layout);
+    layout->addWidget(lattice_param_widget);
+
+    QLabel* miller_index_label = new QLabel("Lattice parameters:");
+    lattice_parameters_layout->addWidget(miller_index_label);
+
+    QDoubleSpinBox* lattice_param_a = new QDoubleSpinBox();
+    lattice_param_a->setValue(0);
+    lattice_param_a->setToolTip("Lattice parameter a");
+    lattice_parameters_layout->addWidget(lattice_param_a);
+
+    QDoubleSpinBox* lattice_param_b = new QDoubleSpinBox();
+    lattice_param_b->setValue(0);
+    lattice_param_b->setToolTip("Lattice parameter b");
+    lattice_param_b->hide();
+    lattice_parameters_layout->addWidget(lattice_param_b);
+
+    QDoubleSpinBox* lattice_param_c = new QDoubleSpinBox();
+    lattice_param_c->setValue(0);
+    lattice_param_c->setToolTip("Lattice parameter c");
+    lattice_param_c->hide();
+    lattice_parameters_layout->addWidget(lattice_param_c);
+
+    // add button to load lattice constants
+    this->load_lattice_constants_button = new QPushButton();
+    this->load_lattice_constants_button->setText("Load");
+    this->load_lattice_constants_button->setToolTip("Try to load lattice parameters from database.");
+    lattice_parameters_layout->addWidget(this->load_lattice_constants_button);
+
+    // store pointers
+    this->lattice_parameters.push_back(lattice_param_a);
+    this->lattice_parameters.push_back(lattice_param_b);
+    this->lattice_parameters.push_back(lattice_param_c);
 }
 
 /**
@@ -201,4 +268,58 @@ void InputTab::set_vacuum_input(QVBoxLayout* layout) {
     this->vacuum_spinbox = new QDoubleSpinBox();
     this->vacuum_spinbox->setValue(15.0);
     vacuum_layout->addWidget(this->vacuum_spinbox);
+}
+
+/**
+ * @brief change the lattice parameter input when you change the lattice
+ */
+void InputTab::action_on_change_lattice_select(const QString& lattice) {
+    if(lattice == "BCC") {
+        this->lattice_parameters[0]->show();
+        this->lattice_parameters[1]->hide();
+        this->lattice_parameters[2]->hide();
+    }
+
+    if(lattice == "HCP") {
+        this->lattice_parameters[0]->show();
+        this->lattice_parameters[1]->hide();
+        this->lattice_parameters[2]->show();
+    }
+
+    if(lattice == "FCC") {
+        this->lattice_parameters[0]->show();
+        this->lattice_parameters[1]->hide();
+        this->lattice_parameters[2]->hide();
+    }
+
+    this->label_lattice_search_status->hide();
+}
+
+/**
+ * @brief load lattice constants from database
+ */
+void InputTab::action_load_lattice_constants() {
+    // get element
+    const std::string element = this->get_element().toUtf8().constData();
+
+    // get lattice
+    const std::string lattice = this->get_lattice().toUtf8().constData();
+
+    // build lattice
+    CrystalDatabase cdb;
+    std::vector<double> lc;
+
+    // try to build the lattice and catch any errors
+    try {
+        lc = cdb.get_lattice_parameters(element + "-" + lattice);
+        this->lattice_parameters[0]->setValue(lc[0]);
+        this->lattice_parameters[1]->setValue(lc[1]);
+        this->lattice_parameters[2]->setValue(lc[2]);
+
+        this->label_lattice_search_status->setText("Lattice parameters loaded from database");
+        this->label_lattice_search_status->show();
+    } catch(const std::exception& e) {
+        this->label_lattice_search_status->setText(e.what());
+        this->label_lattice_search_status->show();
+    }
 }

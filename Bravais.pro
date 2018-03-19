@@ -47,7 +47,8 @@ HEADERS  += src/mainwindow.h \
     src/inputtab.h \
     src/elementselector.h \
     src/crystal_database.h \
-    src/surface_creator.h
+    src/surface_creator.h \
+    src/config.h
 
 win32 {
     INCLUDEPATH += ../../Libraries/boost-1.64.0-win-x64/include

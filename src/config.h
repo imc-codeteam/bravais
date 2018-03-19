@@ -19,37 +19,9 @@
  *                                                                        *
  **************************************************************************/
 
-#ifndef ELEMENTSELECTOR_H
-#define ELEMENTSELECTOR_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QGroupBox>
-#include <QRadioButton>
-#include <QGridLayout>
+#define PROGRAM_VERSION "0.2.0"
 
-class ElementSelector : public QWidget
-{
-    Q_OBJECT
-private:
-    QGroupBox* elementbox;						// group box
-    std::vector<QRadioButton*> radio_buttons;	// radio buttons for all elements
-
-public:
-
-    /**
-     * @brief      constructor
-     *
-     * @param      parent  parent widget
-     */
-    explicit ElementSelector(QWidget *parent = 0);
-
-    /**
-	 * @brief      get the selected element
-	 *
-	 * @return     the selected element
-	 */
-    QString get_selected_element() const;
-};
-
-#endif // ELEMENTSELECTOR_H
+#endif // CONFIG_H

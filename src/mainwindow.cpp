@@ -1,15 +1,15 @@
 /**************************************************************************
  *   This file is part of Bravais                                         *
- *   https://github.com/imc-codeteam/bravais                              *
+ *   https://github.com/imc-codeteam/lanius                               *
  *                                                                        *
  *   Author: Ivo Filot <i.a.w.filot@tue.nl>                               *
  *                                                                        *
- *   lanius is free software: you can redistribute it and/or modify       *
+ *   Bravais is free software: you can redistribute it and/or modify      *
  *   it under the terms of the GNU General Public License as published    *
  *   by the Free Software Foundation, either version 3 of the License,    *
  *   or (at your option) any later version.                               *
  *                                                                        *
- *   lanius is distributed in the hope that it will be useful,            *
+ *   Bravais is distributed in the hope that it will be useful,           *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty          *
  *   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.              *
  *   See the GNU General Public License for more details.                 *
@@ -20,6 +20,7 @@
  **************************************************************************/
 
 #include "mainwindow.h"
+#include "config.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
@@ -40,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->showMessage(tr("Welcome to Bravais editor"));
 
     // set window parameters
-    this->setWindowTitle("Bravais Crystal Builder");    // set window label
+    this->setWindowTitle("Bravais Crystal Builder v." + QString(PROGRAM_VERSION));    // set window label
     this->setMinimumSize(600, 400);                     // set minimum size of the window
     this->resize(600, 600);                             // resize the windows
 
@@ -66,6 +67,9 @@ void MainWindow::action_build_unit_cell() {
     // get lattice
     const std::string lattice = this->input_tab->get_lattice().toUtf8().constData();
 
+    // get lattice constants
+    std::vector<double> lc = this->input_tab->get_lattice_constants();
+
     // get miller indices
     std::vector<int> miller_indices = this->input_tab->get_miller_indices();
 
@@ -77,12 +81,9 @@ void MainWindow::action_build_unit_cell() {
 
     // build lattice
     SurfaceCreator sf;
-    CrystalDatabase cdb;
-    std::vector<double> lc;
 
     // try to build the lattice and catch any errors
     try {
-        lc = cdb.get_lattice_parameters(element + "-" + lattice);
         sf.construct_unitcell(lattice, element, lc[0], lc[1], lc[2]);
         sf.cleave(miller_indices[0], miller_indices[1], miller_indices[2], cell_dimensions[0], cell_dimensions[1], cell_dimensions[2]);
         sf.create_surface(vacuum);
