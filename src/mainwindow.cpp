@@ -42,8 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // set window parameters
     this->setWindowTitle("Bravais Crystal Builder v." + QString(PROGRAM_VERSION));    // set window label
-    this->setMinimumSize(600, 400);                     // set minimum size of the window
-    this->resize(600, 600);                             // resize the windows
+    this->setMinimumSize(1024, 768);                     // set minimum size of the window
+    this->resize(1024, 768);                             // resize the windows
 
     // connect signals
     connect(this->input_tab->get_generate_button(), SIGNAL (released()), this, SLOT (action_build_unit_cell()));

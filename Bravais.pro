@@ -20,6 +20,7 @@ gcc {
 msvc {
   QMAKE_CXXFLAGS += -openmp
   QMAKE_CXXFLAGS_RELEASE *= -O2
+  RC_FILE = bravais.rc
 }
 
 # The following define makes your compiler emit warnings if you use
@@ -51,6 +52,6 @@ HEADERS  += src/mainwindow.h \
     src/config.h
 
 win32 {
-    INCLUDEPATH += ../../Libraries/boost-1.64.0-win-x64/include
-    INCLUDEPATH += ../../Libraries/glm-0.9.8.4-win-x64
+    INCLUDEPATH += ../../../Libraries/boost-1.64.0-win-x64/include
+    INCLUDEPATH += ../../../Libraries/glm-0.9.8.4-win-x64
 }
