@@ -2,7 +2,7 @@
 ;
 ; This script constructs the Veevee installer for Windows
  
-!define setup "mkmcxx_installer.exe"
+!define setup "bravais_installer_win64.exe"
  
 ; change this to wherever the files to be packaged reside
 !define srcdir "."
